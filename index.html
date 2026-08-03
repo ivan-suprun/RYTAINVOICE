@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ryta — Invoice</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,300;1,9..144,400;1,9..144,500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F6F2EA; --ink:#1C1A17; --ink-soft:#5C564D; --rule:#D8D1C4; --red:#8E3B2B;
+    --serif:'Fraunces', Georgia, serif;
+    --sans:'Inter', -apple-system, Helvetica, Arial, sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{text-wrap:pretty;}
+  body{background:#E8E3D9;color:var(--ink);font-family:var(--sans);font-weight:300;
+    text-transform:uppercase;-webkit-font-smoothing:antialiased;padding:32px 16px;}
+  p, li, div, span{orphans:3;widows:3;}
+  .sheet{position:relative;background:var(--paper);max-width:860px;margin:0 auto;padding:0 64px 60px;}
+
+  /* ——— masthead : tight, centered ——— */
+  .masthead{text-align:center;}
+  .kicker-top{font-size:9.5px;letter-spacing:.3em;color:var(--ink);opacity:.7;margin-bottom:5px;font-weight:500;}
+  .wordmark{font-family:var(--serif);font-weight:400;font-size:35px;letter-spacing:.03em;line-height:1.1;color:var(--red);}
+  .subline{font-size:10.5px;letter-spacing:.22em;color:var(--ink-soft);margin-top:9px;}
+  .lang-switch{text-align:center;margin-bottom:13px;
+    font-family:var(--sans);font-size:9.5px;letter-spacing:.14em;}
+  .lang-switch a{color:var(--ink-soft);text-decoration:none;}
+  .lang-switch a.active{color:var(--red);font-weight:500;}
+  .lang-switch a:hover{color:var(--red);}
+  .doc-num{font-family:var(--serif);font-size:12px;letter-spacing:.04em;
+    color:var(--ink-soft);opacity:.55;margin-top:6px;white-space:nowrap;}
+  .rule{height:1px;background:var(--rule);margin:16px 0 28px;}
+
+  /* ——— meta ——— */
+  .meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:28px;text-align:center;}
+  .meta .label{font-size:9px;letter-spacing:.22em;color:var(--red);margin-bottom:9px;font-weight:500;}
+  .meta .value{font-size:12.5px;line-height:1.75;color:var(--ink-soft);}
+  .client-name{display:block;font-family:var(--serif);font-style:normal;font-weight:600;
+    color:var(--ink);font-size:22px;letter-spacing:.01em;}
+
+  /* ——— section dividers ——— */
+  .section-head{display:flex;align-items:center;gap:18px;margin:52px 0 24px;}
+  .section-head .line{flex:1;height:1px;background:var(--rule);}
+  .section-head .label{white-space:nowrap;text-align:center;font-size:12px;letter-spacing:.26em;
+    color:var(--ink-soft);font-weight:500;}
+  .section-head .label em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--red);margin-right:8px;}
+  
+  .subsection-head{display:flex;align-items:center;gap:14px;margin:40px 0 18px;}
+  .subsection-head .line{flex:1;height:1px;background:var(--rule);}
+  .subsection-head .label{white-space:nowrap;text-align:center;font-size:10px;letter-spacing:.18em;
+    color:var(--ink-soft);font-weight:500;}
+
+  .location-head{display:flex;align-items:center;gap:18px;margin:56px 0 32px;padding-top:12px;border-top:2px solid var(--rule);}
+  .location-head .line{flex:1;height:2px;background:var(--ink);}
+  .location-head .label{white-space:nowrap;text-align:center;font-size:16px;letter-spacing:.24em;
+    color:var(--ink);font-weight:600;text-transform:uppercase;}
+  .location-head .line:last-child{display:none;}
+
+  /* ——— narrative ——— */
+  .narrative{font-family:var(--serif);font-weight:300;font-size:16.5px;line-height:1.85;
+    letter-spacing:.01em;max-width:56ch;margin:0 auto;text-align:center;color:var(--ink);}
+  .narrative em{font-style:italic;color:var(--red);}
+
+  /* ——— items ——— */
+  .col-head{display:grid;grid-template-columns:1fr 150px;gap:24px;
+    font-size:9.5px;letter-spacing:.22em;color:var(--ink-soft);padding-bottom:14px;font-weight:500;}
+  .col-head span:last-child{text-align:right;}
+  .item{display:grid;grid-template-columns:1fr 150px;gap:24px;padding:28px 0;
+    border-bottom:1px solid var(--rule);align-items:start;}
+  .item:first-of-type{border-top:1px solid var(--rule);}
+  .item-date{font-size:11px;letter-spacing:.16em;color:var(--red);margin-bottom:10px;font-weight:500;}
+  .item-name{font-family:var(--serif);font-size:19px;font-weight:500;line-height:1.28;letter-spacing:.01em;}
+  .item-name.return{color:var(--red);font-weight:600;}
+  .item-desc{font-family:var(--sans);font-size:13.5px;line-height:1.95;color:var(--ink-soft);
+    margin-top:13px;max-width:44ch;letter-spacing:.01em;font-weight:300;}
+  .item-desc ul{list-style:none;margin-top:8px;}
+  .item-desc li{padding-left:16px;position:relative;margin-top:6px;}
+  .item-desc li:before{content:"—";position:absolute;left:0;color:var(--rule);}
+  .item-price{text-align:right;padding-top:2px;}
+  .item-rate{font-size:10px;letter-spacing:.12em;color:var(--ink-soft);margin-bottom:7px;font-variant-numeric:tabular-nums;}
+  .item-amount{font-family:var(--serif);font-size:27px;letter-spacing:.02em;font-weight:500;
+    color:var(--red);font-variant-numeric:tabular-nums;}
+
+  /* ——— totals ——— */
+  .totals{margin-top:48px;margin-bottom:48px;display:flex;justify-content:flex-end;}
+  .totals-inner{width:380px;}
+  .total-row{display:flex;justify-content:space-between;gap:20px;padding:12px 0;font-size:12px;
+    color:var(--ink-soft);font-variant-numeric:tabular-nums;letter-spacing:.03em;}
+  .total-row.grand{border-top:2px solid var(--ink);margin-top:20px;padding-top:28px;color:var(--ink);
+    display:flex;justify-content:center;}
+  .total-row.grand .v{font-family:var(--serif);font-size:18px;letter-spacing:.02em;font-weight:500;color:var(--red);}
+  .currency-symbol{color:var(--red);font-weight:600;}
+
+  /* ——— notes ——— */
+  .note-body{font-family:var(--sans);font-size:13px;line-height:1.9;color:var(--ink-soft);
+    max-width:66ch;margin:0 auto;letter-spacing:.01em;font-weight:300;}
+  .note-body strong{font-weight:500;color:var(--ink);}
+  .note-body .money{color:var(--red);font-weight:500;}
+  .note-body p{margin-top:14px;}
+  .note-body p:first-child{margin-top:0;}
+  .note-body .highlight{color:var(--red);font-weight:600;}
+
+  /* ——— closing ——— */
+  .closing{margin-top:56px;padding-top:32px;border-top:1px solid var(--rule);text-align:center;
+    font-family:var(--serif);font-style:italic;font-weight:300;font-size:13.5px;line-height:1.85;
+    color:var(--ink-soft);letter-spacing:.02em;
+    max-width:44ch;margin-left:auto;margin-right:auto;}
+  .signoff{margin-top:10px;font-style:normal;font-weight:700;font-size:19px;letter-spacing:.04em;
+    color:var(--red);text-transform:uppercase;}
+  .quote-accent{font-weight:700;color:var(--ink);}
+  .footer{margin-top:8px;text-align:center;font-size:9.5px;letter-spacing:.2em;color:var(--ink-soft);}
+  .footer div+div{margin-top:6px;}
+
+  @page{size:A4;margin:14mm;}
+  @media print{body{background:#fff;padding:0;} .sheet{max-width:none;padding:0;background:#fff;} .item{break-inside:avoid;}}
+  @media(max-width:640px){
+    .sheet{padding:44px 26px;}
+    .doc-num{font-size:12px;}
+    .meta{grid-template-columns:1fr;gap:26px;}
+    .wordmark{font-size:28px;}
+    .item,.col-head{grid-template-columns:1fr 96px;gap:14px;}
+    .item-amount{font-size:21px;}
+    .total-row.grand .v{font-size:34px;}
+  }
+</style>
+</head>
+<body>
+<div class="sheet">
+
+  <div class="lang-switch"><a href="index.html" class="active">EN</a> / <a href="index-ru.html">RU</a></div>
+  <div class="masthead">
+    <div class="wordmark">Ivan Suprun</div>
+    <div class="subline">Private Image Curation · London</div>
+    <div class="doc-num">№ IS-2026-015</div>
+  </div>
+
+  <div class="rule"></div>
+
+  <div class="meta">
+    <div>
+      <div class="label">Issued To</div>
+      <div class="value"><span class="client-name">Ryta</span></div>
+    </div>
+    <div>
+      <div class="label">Occasion</div>
+      <div class="value">European Image Styling<br>&amp; Luxury Acquisition<br>July 2026</div>
+    </div>
+    <div>
+      <div class="label">Invoice Details</div>
+      <div class="value">Issued July 2026<br>Currency — EUR &amp; GBP<br>(€ · £)</div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <span class="line"></span>
+    <span class="label"><em>I</em>The Engagement</span>
+    <span class="line"></span>
+  </div>
+  <p class="narrative">
+    Comprehensive <em>personal image styling</em> and <em>luxury acquisition</em> across European destinations. Services include full image assembly, curated luxury shopping across multiple locations, and professional wardrobe development. The engagement spans three distinct locations—London for client consultation and shopping, Ibiza for intensive image styling and preparation, and Monaco for luxury retail acquisition.
+  </p>
+
+  <div class="section-head">
+    <span class="line"></span>
+    <span class="label"><em>II</em>Services Rendered</span>
+    <span class="line"></span>
+  </div>
+
+  <!-- ——— LONDON ——— -->
+  <div class="location-head">
+    <span class="line"></span>
+    <span class="label">London</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Personal Styling Service</div>
+      <div class="item-name">Shopping · 6 Hours</div>
+      <div class="item-desc">Luxury consultation and curation across premium locations.</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£3,000</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">European Haute Couture · Alaïa</div>
+      <div class="item-name return">Shopping · RETURN TO BUILDERLINGS</div>
+      <div class="item-desc">
+        Acquisition. <span class="highlight">This amount returns directly to Ivan's Builderlings account.</span>
+      </div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€6,563</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Designer Selection · Chloé &amp; Wolford</div>
+      <div class="item-name return">Shopping · RETURN TO REVOLUT</div>
+      <div class="item-desc">
+        Acquisition. <span class="highlight">This amount returns directly to Ivan's Revolut account.</span>
+      </div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£2,681</div>
+    </div>
+  </div>
+
+<div class="item">
+    <div>
+      <div class="item-date">Designer Loungewear</div>
+      <div class="item-name">Shopping · Jordan Exotic Robes</div>
+      <div class="item-desc">20% purchase commission on €6,000 acquisition.</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€1,200</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Delivery</div>
+      <div class="item-name">Robes · Belts Shipping</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€35</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Professional Meal</div>
+      <div class="item-name">Lunch</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£68</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Transportation</div>
+      <div class="item-name">London Local Transport</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£148</div>
+    </div>
+  </div>
+
+  <!-- ——— IBIZA ——— -->
+  <div class="location-head">
+    <span class="line"></span>
+    <span class="label">Ibiza · 19–21 July</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">19 July</div>
+      <div class="item-name">Full Look Assembly</div>
+      <div class="item-desc">Hair, makeup, styling, and wardrobe preparation.</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£1,500</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">20 July</div>
+      <div class="item-name">Full Look Assembly · Two Complete Stylings</div>
+      <div class="item-desc">Morning and evening: hair, makeup, and wardrobe curation (two full services).</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£2,000</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">21 July</div>
+      <div class="item-name">Full Look Assembly · Two Complete Stylings</div>
+      <div class="item-desc">Morning and evening: hair, makeup, and wardrobe curation (two full services).</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£2,000</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">People First · Gifts</div>
+      <div class="item-name">Рубашка + Штаны · €430</div>
+      <div class="item-desc">Limited-run collection pieces. Burgundy trousers &amp; purple stripe shirt set.</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€430</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Professional Meal</div>
+      <div class="item-name">Dinner</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€120</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Transportation</div>
+      <div class="item-name">Airport &amp; Local Transport</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€93</div>
+    </div>
+  </div>
+
+  <!-- ——— MONACO ——— -->
+  <div class="location-head">
+    <span class="line"></span>
+    <span class="label">Monaco</span>
+    <span class="line"></span>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Boutique Services</div>
+      <div class="item-name">Shopping · Luxury Retail Sourcing</div>
+      <div class="item-desc">Curated shopping and styling coordination.</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">£5,000</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Professional Meal</div>
+      <div class="item-name">Lunch</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€120</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Transportation</div>
+      <div class="item-name">Local Transport &amp; Logistics</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€260</div>
+    </div>
+  </div>
+
+  <div class="item">
+    <div>
+      <div class="item-date">Retail Selection</div>
+      <div class="item-name">Shopping · Zara Monaco</div>
+      <div class="item-desc">—</div>
+    </div>
+    <div class="item-price">
+      <div class="item-rate">—</div>
+      <div class="item-amount">€965</div>
+    </div>
+  </div>
+
+  <div class="totals">
+    <div class="totals-inner">
+      <div class="total-row"><span>Subtotal · EUR Services</span><span>€9,786</span></div>
+      <div class="total-row"><span>Subtotal · GBP Services</span><span>£16,181</span></div>
+      <div class="total-row"><span>GBP Conversion</span><span>€18,900</span></div>
+      <div class="total-row grand"><span class="v"><span class="currency-symbol">€</span>28,686</span></div>
+    </div>
+  </div>
+
+  <div class="section-head">
+    <span class="line"></span>
+    <span class="label"><em>III</em>Notes On The Fees</span>
+    <span class="line"></span>
+  </div>
+  <div class="note-body">
+    <p><strong>Three designer acquisitions require immediate return transfers to Ivan's accounts:</strong></p>
+    <p>• <span class="highlight">Alaïa (€6,563) → Ivan's Builderlings account</span><br>
+    • <span class="highlight">Chloé &amp; Wolford (£2,681 combined) → Ivan's Revolut account</span></p>
+    <p><strong>Payment option:</strong> The Chloé &amp; Wolford amount (£2,681) can be transferred to Revolut in EUR at approximately <span class="highlight">€3,135</span>.</p>
+    <p><strong>All other charges are final.</strong> This includes image assembly work, additional retail curation, People First gifts, professional meals, and transportation.</p>
+  </div>
+
+  <div class="closing">
+    <div class="signoff">Ivan Suprun</div>
+  </div>
+
+  <div class="footer">
+    <div>Private Image Curation</div>
+    <div>Invoice IS-2026-015</div>
+  </div>
+
+</div>
+</body>
+</html>
